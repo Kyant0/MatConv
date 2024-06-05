@@ -4,7 +4,7 @@ scaledImg = imresize(img, 0.5);
 [imgToSharpen] = imread('resources\car.png');
 
 windowHeight = 600;
-fig = uifigure('Position', [250, 200, 760, windowHeight], 'Name', 'Image Display GUI');
+fig = uifigure('Position', [250, 200, 760, windowHeight], 'Name', 'MatConv');
 
 function newPos = pos(left, top, width, height)
 windowHeight = 600;
