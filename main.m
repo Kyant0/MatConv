@@ -3,6 +3,8 @@ scaledImg = imresize(img, 0.5);
 
 [imgToSharpen] = imread('resources\car.png');
 
+[imgBiang] = imread('resources\biang.png');
+
 windowHeight = 600;
 fig = uifigure('Position', [250, 200, 760, windowHeight], 'Name', 'MatConv');
 
@@ -41,15 +43,15 @@ compListLength = 0;
 
 dropdown = uidropdown(fig, ...
     'Position', pos(50, 500, 200, 22), ...
-    'Items', {'Gaussian blur', 'Box blur', 'Edge detection', 'Sharpen'}, ...
+    'Items', {'Gaussian blur', 'Box blur', 'Edge detection', 'Sharpen', 'Gabor (Image)', 'Gabor (Text)'}, ...
     'FontSize', 16, ...
     'Value', 'Gaussian blur', ...
-    'ValueChangedFcn', @(src,event) selectionChanged(fig, scaledImg, img, imgToSharpen, src.Value));
+    'ValueChangedFcn', @(src,event) selectionChanged(fig, scaledImg, img, imgToSharpen, imgBiang, src.Value));
 
-selectionChanged(fig, scaledImg, img, imgToSharpen, dropdown.Value);
+selectionChanged(fig, scaledImg, img, imgToSharpen, imgBiang, dropdown.Value);
 
 
-function selectionChanged(fig, img, nonScaledImg, imgToSharpen, val)
+function selectionChanged(fig, img, nonScaledImg, imgToSharpen, imgBiang, val)
 global compOriImg;
 global compImg;
 global compList;
@@ -106,7 +108,7 @@ switch val
         compList(1) = uicontrol(fig, ...
             'Style','text', ...
             'String', 'Kernel size', ...
-            'FontSize', kSizeVal, ...
+            'FontSize', 12, ...
             'Position', pos(400, 480, 100, 40));
         slider = uislider(fig, ...
             'Limits', [1, 25], 'Value', kSizeVal, ...
@@ -136,6 +138,48 @@ switch val
     case 'Sharpen'
         oriImg = imgToSharpen;
         updateSharpen(fig, oriImg);
+
+    case 'Gabor (Image)'
+        global thetaVal;
+        thetaVal = 45;
+
+        oriImg = imgToSharpen;
+
+        % theta (in deg)
+        compList(1) = uicontrol(fig, ...
+            'Style','text', ...
+            'String', 'Theta (deg)', ...
+            'FontSize', 12, ...
+            'Position', pos(400, 500, 100, 40));
+        slider = uislider(fig, ...
+            'Limits', [0, 90], 'Value', thetaVal, ...
+            'Position', pos(500, 500, 200, 0), ...
+            "ValueChangedFcn", @(src,event) updateGabor(fig, oriImg, event.Value));
+        compList(2) = slider;
+        compListLength = 2;
+
+        updateGabor(fig, oriImg, thetaVal);
+
+    case 'Gabor (Text)'
+        global thetaVal;
+        thetaVal = 45;
+
+        oriImg = imgBiang;
+
+        % theta (in deg)
+        compList(1) = uicontrol(fig, ...
+            'Style','text', ...
+            'String', 'Theta (deg)', ...
+            'FontSize', 12, ...
+            'Position', pos(400, 500, 100, 40));
+        slider = uislider(fig, ...
+            'Limits', [0, 90], 'Value', thetaVal, ...
+            'Position', pos(500, 500, 200, 0), ...
+            "ValueChangedFcn", @(src,event) updateGabor(fig, oriImg, event.Value));
+        compList(2) = slider;
+        compListLength = 2;
+
+        updateGabor(fig, oriImg, thetaVal);
 
     otherwise
 end
@@ -209,6 +253,20 @@ if compImg ~= 0
 end
 
 outImg = sharpen(img);
+outImgAxis = uiaxes(fig, ...
+    'Position', pos(400, 140, 380, 380));
+compImg = imshow(outImg, 'Parent', outImgAxis);
+end
+
+
+function updateGabor(fig, img, theta)
+global compImg;
+
+if compImg ~= 0
+    delete(compImg);
+end
+
+outImg = gabor(img, theta);
 outImgAxis = uiaxes(fig, ...
     'Position', pos(400, 140, 380, 380));
 compImg = imshow(outImg, 'Parent', outImgAxis);
