@@ -21,12 +21,12 @@ function gaborKernel = createGaborKernel(size, sigma, theta, frequency, gamma, p
     n = (size - 1) / 2;
     [x, y] = meshgrid(-n:n, -n:n);
 
-    xPrime = x * cos(theta) + y * sin(theta);
-    yPrime = -x * sin(theta) + y * cos(theta);
+    xP = x * cos(theta) + y * sin(theta);
+    yP = -x * sin(theta) + y * cos(theta);
 
-    g = exp(-0.5 * (xPrime.^2 / sigma^2 + gamma^2 * yPrime.^2 / sigma^2));
+    g = exp(-0.5 * (xP.^2 + gamma^2 * yP.^2) / sigma^2);
 
-    s = cos(2 * pi * frequency * xPrime + phase);
+    s = cos(2 * pi * frequency * xP + phase);
 
     gaborKernel = g .* s;
 end
